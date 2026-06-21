@@ -38,10 +38,12 @@ export default function SettingsModal({ onClose, onImported }: Props) {
   const captureRef = useRef<HTMLButtonElement>(null);
   const { toasts, show: showToast } = useToast();
   const [theme, setThemeState] = useState<Theme>(getTheme);
+  const [autostart, setAutostart] = useState(false);
 
   useEffect(() => {
     invoke<number | null>("get_auto_lock_timeout").then(setAutoLock);
     invoke<string>("get_shortcut").then(setShortcut);
+    invoke<boolean>("get_autostart").then(setAutostart);
   }, []);
 
   function handleLanguage(code: string) {
@@ -52,6 +54,11 @@ export default function SettingsModal({ onClose, onImported }: Props) {
   function handleTheme(opt: Theme) {
     setThemeState(opt);
     setTheme(opt);
+  }
+
+  async function handleAutostart(value: boolean) {
+    setAutostart(value);
+    await invoke("set_autostart", { enabled: value });
   }
 
   async function handleAutoLock(secs: number | null) {
@@ -258,6 +265,26 @@ export default function SettingsModal({ onClose, onImported }: Props) {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Startup */}
+          <div>
+            <p className="text-xs text-theme-3 mb-2">{t("settings.startup")}</p>
+            <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-theme-raised border border-theme-border">
+              <span className="text-sm text-theme-2">{t("settings.startWithSystem")}</span>
+              <button
+                onClick={() => handleAutostart(!autostart)}
+                className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                  autostart ? "bg-emerald-500" : "bg-theme-border"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                    autostart ? "translate-x-4" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Import / Export */}

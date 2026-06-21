@@ -123,6 +123,8 @@
       "dark": "Escuro",
       "light": "Claro"
     },
+    "startup": "Inicialização",
+    "startWithSystem": "Iniciar com o sistema",
     "autoLock": "Bloqueio automático",
     "autoLockOptions": {
       "never": "Nunca",

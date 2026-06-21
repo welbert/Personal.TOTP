@@ -50,6 +50,15 @@ get_totp_code(id)
 - The master key remains in memory while the process is running.
 - `lock()` wipes the key from memory without stopping the process.
 
+## Autostart
+
+Managed by `tauri-plugin-autostart` (desktop-only). The plugin is registered dynamically inside the `setup` closure (same pattern as `tauri-plugin-global-shortcut`) so it is never compiled into mobile builds.
+
+- **Disabled by default** — no registry entry is created on first run.
+- **Windows**: reads and writes `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` via the `auto-launch` crate.
+- **Configurable at runtime** via **Settings → Startup → Launch at startup** — no restart required.
+- The setting is managed entirely by the OS mechanism; it is not stored in the app's own `config` table.
+
 ## Global shortcut
 
 Registered at startup via `tauri-plugin-global-shortcut`. Default: **Alt+Shift+A**.  

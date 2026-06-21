@@ -756,6 +756,38 @@ fn set_shortcut(shortcut: String, app: tauri::AppHandle, state: State<AppState>)
     Ok(())
 }
 
+#[cfg(desktop)]
+fn autostart_is_enabled(app: &tauri::AppHandle) -> bool {
+    use tauri_plugin_autostart::ManagerExt;
+    app.autolaunch().is_enabled().unwrap_or(false)
+}
+
+#[cfg(not(desktop))]
+fn autostart_is_enabled(_app: &tauri::AppHandle) -> bool { false }
+
+#[cfg(desktop)]
+fn autostart_set(enabled: bool, app: &tauri::AppHandle) -> Result<(), String> {
+    use tauri_plugin_autostart::ManagerExt;
+    if enabled {
+        app.autolaunch().enable().map_err(|e| e.to_string())
+    } else {
+        app.autolaunch().disable().map_err(|e| e.to_string())
+    }
+}
+
+#[cfg(not(desktop))]
+fn autostart_set(_enabled: bool, _app: &tauri::AppHandle) -> Result<(), String> { Ok(()) }
+
+#[tauri::command]
+fn get_autostart(app: tauri::AppHandle) -> bool {
+    autostart_is_enabled(&app)
+}
+
+#[tauri::command]
+fn set_autostart(enabled: bool, app: tauri::AppHandle) -> Result<(), String> {
+    autostart_set(enabled, &app)
+}
+
 #[tauri::command]
 fn open_log_dir(app: tauri::AppHandle) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
@@ -825,6 +857,13 @@ pub fn run() {
                         let _ = handle.emit("auto-locked", ());
                     }
                 });
+            }
+
+            // Autostart plugin
+            #[cfg(desktop)]
+            {
+                use tauri_plugin_autostart::MacosLauncher;
+                app.handle().plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))?;
             }
 
             // Global shortcut: Alt+Shift+A → toggle window
@@ -953,6 +992,8 @@ pub fn run() {
             open_log_dir,
             get_shortcut,
             set_shortcut,
+            get_autostart,
+            set_autostart,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

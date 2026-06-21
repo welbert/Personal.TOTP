@@ -123,6 +123,8 @@
       "dark": "Dark",
       "light": "Light"
     },
+    "startup": "Startup",
+    "startWithSystem": "Launch at startup",
     "autoLock": "Auto-lock",
     "autoLockOptions": {
       "never": "Never",

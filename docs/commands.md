@@ -103,6 +103,15 @@ Format: `"Modifier+…+Code"` where modifiers are `Alt`, `Ctrl`, `Shift`, `Meta`
 Returns an error if the shortcut is already registered by another application.  
 Configurable via **Settings → Global shortcut** (click the key display and press a new combination).
 
+### `get_autostart() → boolean`
+Returns `true` if the app is registered to launch at system startup, `false` otherwise.
+
+### `set_autostart(enabled: boolean) → void`
+Enables or disables launch at system startup.  
+On Windows, writes/removes the entry in `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` via `tauri-plugin-autostart` (backed by the `auto-launch` crate).  
+Disabled by default (no registry entry is created on first run).  
+Configurable via **Settings → Startup → Launch at startup**.
+
 ### `write_log(level: string, message: string) → void`
 Appends one line to the current day's log file (`log-YYYYMMDD.txt` inside the platform log directory).  
 Called by `src/logger.ts` — prefer using the logger module over invoking this command directly.

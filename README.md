@@ -11,6 +11,7 @@ A lightweight desktop TOTP authenticator for Windows, macOS, and Linux. Stores a
 - **Global shortcut** — opens the app from anywhere; configurable in Settings (default `Alt+Shift+A`)
 - **Lives in the tray** — closing the window hides it; the process keeps running
 - **Auto-lock** — vault locks after a configurable timeout (default 5 min) or can be disabled
+- **Launch at startup** — optional toggle in Settings to start with the system; disabled by default
 - **Keyboard-first** — press `1`–`9` to copy a code and dismiss in one keystroke
 - **Favorites + smart sort** — pin entries to the top; rest ordered by most recently used
 - **QR code scanning** — add accounts by scanning a QR image: pick an image file, paste from clipboard, or press Ctrl+V while the add dialog is open
@@ -99,6 +100,7 @@ Click the gear icon (top-right) to open Settings:
 | Language | Português (Brasil) · English (US) |
 | Global shortcut | Click the key display and press any modifier + key combination |
 | Auto-lock | Never · 5 · 10 · 15 · 30 · 60 minutes |
+| Startup | Toggle to launch the app automatically when the system starts |
 | Import / Export | Import or export tokens as JSON; download a template to see the expected format |
 | Diagnostics | Opens the log folder for troubleshooting |
 
