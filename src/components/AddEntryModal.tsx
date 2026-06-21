@@ -129,7 +129,6 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
       setError(t("addEntry.errorQrNotOtpauth"));
       return;
     }
-    logger.info(`add_entry: QR decoded — ${logUrl}`);
     const parsed = parseOtpauthUrl(data);
     if (!parsed) {
       logger.warn(`add_entry: QR scan failed — could not parse otpauth URL: ${logUrl}`);
@@ -170,7 +169,6 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
         setError(t("addEntry.errorQrNotOtpauth"));
         return;
       }
-      logger.info(`add_entry: QR decoded from clipboard — ${logUrl}`);
       const parsed = parseOtpauthUrl(code.data);
       if (!parsed) {
         logger.warn(`add_entry: QR scan from clipboard failed — could not parse otpauth URL: ${logUrl}`);
