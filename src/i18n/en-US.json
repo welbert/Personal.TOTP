@@ -63,8 +63,14 @@
     "cancel": "Cancel",
     "submit": "Add",
     "submitting": "Saving...",
+    "scanFromFile": "Scan from image",
+    "scanFromClipboard": "Paste from clipboard",
     "errorName": "Name is required.",
-    "errorSecret": "Secret is required."
+    "errorSecret": "Secret is required.",
+    "errorDuplicateSecret": "This secret is already registered as \"{{name}}\".",
+    "errorQrNotFound": "No QR code found in the image.",
+    "errorQrNotOtpauth": "QR code found but it is not a TOTP code.",
+    "errorQrNoImage": "No image found in clipboard."
   },
   "editEntry": {
     "title": "Edit TOTP account",

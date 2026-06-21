@@ -13,7 +13,9 @@ A lightweight desktop TOTP authenticator for Windows, macOS, and Linux. Stores a
 - **Auto-lock** — vault locks after a configurable timeout (default 5 min) or can be disabled
 - **Keyboard-first** — press `1`–`9` to copy a code and dismiss in one keystroke
 - **Favorites + smart sort** — pin entries to the top; rest ordered by most recently used
+- **QR code scanning** — add accounts by scanning a QR image: pick an image file, paste from clipboard, or press Ctrl+V while the add dialog is open
 - **`otpauth://` paste** — paste a QR URL into the Secret field to auto-fill all fields
+- **Duplicate detection** — adding a secret that already exists shows an error naming the conflicting entry; import silently skips duplicates
 - **Multi-language** — Portuguese (Brazil) and English (US); follows the system language by default, switchable in Settings
 - **Import / Export** — back up all tokens to a JSON file and restore them on any installation
 
@@ -65,10 +67,17 @@ Enter your master password to unlock the vault. The key lives in memory only —
 
 <img src="img/SampleAdd.png" alt="Add entry modal" width="280">
 
-Click **+** to open the add dialog. You can either:
+Click **+** to open the add dialog. There are four ways to fill in the secret:
 
-- **Paste an `otpauth://` URL** in the Secret field — all fields fill in automatically
-- **Fill manually** — Name, Issuer (optional), and the base32 secret from your service
+| Method | How |
+|--------|-----|
+| **Scan from image file** | Click **Scan from image** below the Secret field and pick a screenshot or saved QR image |
+| **Paste from clipboard** | Copy a QR image to the clipboard, then click **Paste from clipboard** |
+| **Ctrl+V** | Copy a QR image and press Ctrl+V while the dialog is open — fields fill automatically |
+| **`otpauth://` URL** | Paste the URL directly into the Secret field |
+| **Manual** | Type the Name, Issuer (optional), and the base32 secret |
+
+If the secret is already registered the dialog shows which entry it belongs to instead of saving a duplicate.
 
 > Most services provide a "Can't scan QR code?" link that reveals the `otpauth://` URL or the raw secret.
 

@@ -63,8 +63,14 @@
     "cancel": "Cancelar",
     "submit": "Adicionar",
     "submitting": "Salvando...",
+    "scanFromFile": "Escanear da imagem",
+    "scanFromClipboard": "Colar da área de transferência",
     "errorName": "Nome é obrigatório.",
-    "errorSecret": "Secret é obrigatório."
+    "errorSecret": "Secret é obrigatório.",
+    "errorDuplicateSecret": "Este secret já está cadastrado em \"{{name}}\".",
+    "errorQrNotFound": "Nenhum QR Code encontrado na imagem.",
+    "errorQrNotOtpauth": "QR Code encontrado, mas não é um código TOTP.",
+    "errorQrNoImage": "Nenhuma imagem encontrada na área de transferência."
   },
   "editEntry": {
     "title": "Editar conta TOTP",

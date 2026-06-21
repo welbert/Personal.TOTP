@@ -56,7 +56,14 @@ Decrypts the secret on the fly — it is never exposed to the frontend.
 Adds a new entry. `secret` must be base32 (e.g. `JBSWY3DPEHPK3PXP`).
 Validates the secret before saving. Returns the created `id`.
 
-> `AddEntryModal.tsx` parses `otpauth://` URLs on the frontend and extracts the fields before calling this command.
+**Duplicate detection:** before inserting, the command decrypts every stored secret and compares it against the new one. If a match is found it returns the error string `SECRET_ALREADY_EXISTS:<name>` (where `<name>` is the existing entry's display name). The frontend catches this prefix, extracts the name, and shows a localised error message.
+
+> `AddEntryModal.tsx` handles three ways to fill the form before calling this command:
+> - Paste an `otpauth://` URL into the Secret field — all fields are parsed and filled automatically.
+> - Click **Scan from image** — opens a file picker; the selected image is decoded with `jsQR` via an off-screen canvas.
+> - Click **Paste from clipboard** — reads the clipboard image via `navigator.clipboard.read()` and decodes it the same way.
+> - Press **Ctrl+V** while the modal is open — any image on the clipboard is intercepted by a document-level `paste` listener and decoded automatically.
+> All QR paths expect the QR code to encode an `otpauth://` URL.
 
 ### `update_entry(id, name, issuer, newSecret, algorithm, digits, period) → void`
 Updates an existing entry. If `newSecret` is a non-empty base32 string, the secret is validated and re-encrypted; pass `null` or an empty string to keep the current secret unchanged.

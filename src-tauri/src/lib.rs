@@ -383,9 +383,29 @@ fn add_entry(
         String::new(),
     );
 
-    let (ct, nonce) = encrypt(&key, secret_clean.as_bytes());
-
     let db = state.db.lock().unwrap();
+
+    // Duplicate check: `let rows; rows` pattern releases the stmt borrow before the ? propagates
+    let existing: Vec<(String, Vec<u8>, Vec<u8>)> = {
+        let mut stmt = db
+            .prepare("SELECT name, encrypted_secret, nonce FROM totp_entries")
+            .map_err(|e| e.to_string())?;
+        let rows: Vec<_> = stmt
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+            .map_err(|e| e.to_string())?
+            .flatten()
+            .collect();
+        rows
+    };
+    for (existing_name, ct, nonce_bytes) in existing {
+        if let Ok(plain) = decrypt_bytes(&key, &ct, &nonce_bytes) {
+            if String::from_utf8_lossy(&plain).to_uppercase() == secret_clean {
+                return Err(format!("SECRET_ALREADY_EXISTS:{}", existing_name));
+            }
+        }
+    }
+
+    let (ct, nonce) = encrypt(&key, secret_clean.as_bytes());
     db.execute(
         "INSERT INTO totp_entries
          (name, issuer, encrypted_secret, nonce, algorithm, digits, period)

@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation, Trans } from "react-i18next";
-import { XIcon } from "./icons";
+import jsQR from "jsqr";
+import { readImage } from "@tauri-apps/plugin-clipboard-manager";
+import { ClipboardIcon, PhotoIcon, XIcon } from "./icons";
+import { logger } from "../logger";
 
 interface Props {
   onClose: () => void;
@@ -17,27 +20,64 @@ interface FormState {
   period: string;
 }
 
-function parseOtpauthUrl(url: string): Partial<FormState> {
+// Parses otpauth://{type}/{label}?{params} without relying on new URL(),
+// which breaks on labels that contain "://" or other edge-case characters.
+function parseOtpauthUrl(url: string): Partial<FormState> | null {
   try {
-    const withProtocol = url.replace("otpauth://", "http://otpauth/");
-    const u = new URL(withProtocol);
-    const params = u.searchParams;
-    const rawLabel = decodeURIComponent(u.pathname.slice(1));
-    const [labelIssuer, labelName] = rawLabel.includes(":")
-      ? rawLabel.split(":", 2)
-      : ["", rawLabel];
+    const withoutScheme = url.slice("otpauth://".length); // "totp/label?params"
+    const firstSlash = withoutScheme.indexOf("/");
+    if (firstSlash === -1) return null;
+
+    const rest = withoutScheme.slice(firstSlash + 1); // "label?params"
+    const qMark = rest.indexOf("?");
+    const rawLabel = qMark === -1 ? rest : rest.slice(0, qMark);
+    const queryStr = qMark === -1 ? "" : rest.slice(qMark + 1);
+
+    let label: string;
+    try { label = decodeURIComponent(rawLabel); } catch { label = rawLabel; }
+
+    const params = new URLSearchParams(queryStr);
+
+    // label is "{issuer}:{account}" or just "{account}"
+    const colonIdx = label.indexOf(":");
+    const issuerFromLabel = colonIdx !== -1 ? label.slice(0, colonIdx) : "";
+    const accountFromLabel = colonIdx !== -1 ? label.slice(colonIdx + 1) : label;
 
     return {
-      name: params.get("issuer") || labelIssuer || rawLabel,
-      issuer: labelName || "",
+      name: params.get("issuer") || issuerFromLabel || label,
+      issuer: accountFromLabel,
       secret: (params.get("secret") || "").toUpperCase(),
       algorithm: params.get("algorithm") || "SHA1",
       digits: params.get("digits") || "6",
       period: params.get("period") || "30",
     };
   } catch {
-    return {};
+    return null;
   }
+}
+
+async function decodeQRFromBlob(blob: Blob): Promise<string | null> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(null); return; }
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        resolve(code?.data ?? null);
+      };
+      img.onerror = () => resolve(null);
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(blob);
+  });
 }
 
 const inputCls = "w-full bg-theme-raised border border-theme-border rounded-lg px-3 py-2 text-sm text-theme-1 placeholder-theme-4 outline-none focus:border-emerald-500 transition-colors";
@@ -57,6 +97,7 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function set(field: keyof FormState, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -67,12 +108,105 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
     if (text.startsWith("otpauth://")) {
       e.preventDefault();
       const parsed = parseOtpauthUrl(text);
+      if (!parsed) return;
       setForm((f) => ({ ...f, ...parsed }));
       if (parsed.algorithm !== "SHA1" || parsed.digits !== "6" || parsed.period !== "30") {
         setShowAdvanced(true);
       }
     }
   }
+
+  async function applyQRBlob(blob: Blob) {
+    const data = await decodeQRFromBlob(blob);
+    if (!data) {
+      logger.warn("add_entry: QR scan failed — no QR code detected in image");
+      setError(t("addEntry.errorQrNotFound"));
+      return;
+    }
+    const logUrl = data.includes("?") ? data.slice(0, data.indexOf("?")) : data.slice(0, 120);
+    if (!data.startsWith("otpauth://")) {
+      logger.warn(`add_entry: QR scan failed — content is not otpauth:// (got: ${logUrl})`);
+      setError(t("addEntry.errorQrNotOtpauth"));
+      return;
+    }
+    logger.info(`add_entry: QR decoded — ${logUrl}`);
+    const parsed = parseOtpauthUrl(data);
+    if (!parsed) {
+      logger.warn(`add_entry: QR scan failed — could not parse otpauth URL: ${logUrl}`);
+      setError(t("addEntry.errorQrNotOtpauth"));
+      return;
+    }
+    setForm((f) => ({ ...f, ...parsed }));
+    if (parsed.algorithm !== "SHA1" || parsed.digits !== "6" || parsed.period !== "30") {
+      setShowAdvanced(true);
+    }
+    setError("");
+  }
+
+  async function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setError("");
+    await applyQRBlob(file);
+  }
+
+  async function handleScanFromClipboard() {
+    setError("");
+    try {
+      const img = await readImage();
+      const [rgba, size] = await Promise.all([img.rgba(), img.size()]);
+      // Use byteOffset+byteLength so the view is correct even if rgba is a slice of a larger buffer
+      const pixels = new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, rgba.byteLength);
+      const code = jsQR(pixels, size.width, size.height);
+      if (!code?.data) {
+        logger.warn("add_entry: QR scan from clipboard failed — no QR code detected in image");
+        setError(t("addEntry.errorQrNotFound"));
+        return;
+      }
+      const logUrl = code.data.includes("?") ? code.data.slice(0, code.data.indexOf("?")) : code.data.slice(0, 120);
+      if (!code.data.startsWith("otpauth://")) {
+        logger.warn(`add_entry: QR scan from clipboard failed — content is not otpauth:// (got: ${logUrl})`);
+        setError(t("addEntry.errorQrNotOtpauth"));
+        return;
+      }
+      logger.info(`add_entry: QR decoded from clipboard — ${logUrl}`);
+      const parsed = parseOtpauthUrl(code.data);
+      if (!parsed) {
+        logger.warn(`add_entry: QR scan from clipboard failed — could not parse otpauth URL: ${logUrl}`);
+        setError(t("addEntry.errorQrNotOtpauth"));
+        return;
+      }
+      setForm((f) => ({ ...f, ...parsed }));
+      if (parsed.algorithm !== "SHA1" || parsed.digits !== "6" || parsed.period !== "30") {
+        setShowAdvanced(true);
+      }
+    } catch (err) {
+      logger.warn("add_entry: QR scan from clipboard failed — no image in clipboard or read error", err);
+      setError(t("addEntry.errorQrNoImage"));
+    }
+  }
+
+  // Keep a stable ref so the paste listener always calls the latest version
+  const applyQRBlobRef = useRef(applyQRBlob);
+  applyQRBlobRef.current = applyQRBlob;
+
+  // Intercept image paste (Ctrl+V) while the modal is open
+  useEffect(() => {
+    async function handlePaste(e: ClipboardEvent) {
+      if (!e.clipboardData) return;
+      const items = Array.from(e.clipboardData.items);
+      const imageItem = items.find((item) => item.type.startsWith("image/"));
+      if (!imageItem) return;
+      const file = imageItem.getAsFile();
+      if (!file) return;
+      e.preventDefault();
+      setError("");
+      await applyQRBlobRef.current(file);
+    }
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -94,7 +228,13 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
       onAdded();
       onClose();
     } catch (err) {
-      setError(String(err));
+      const msg = String(err);
+      if (msg.startsWith("SECRET_ALREADY_EXISTS:")) {
+        const existingName = msg.slice("SECRET_ALREADY_EXISTS:".length);
+        setError(t("addEntry.errorDuplicateSecret", { name: existingName }));
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -149,6 +289,31 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
               onChange={(e) => set("secret", e.target.value.toUpperCase())}
               onPaste={handleSecretPaste}
               className={`${inputCls} font-mono`}
+            />
+            <div className="flex gap-3 mt-1.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1 text-xs text-theme-4 hover:text-emerald-400 transition-colors"
+              >
+                <PhotoIcon className="w-3.5 h-3.5" />
+                {t("addEntry.scanFromFile")}
+              </button>
+              <button
+                type="button"
+                onClick={handleScanFromClipboard}
+                className="flex items-center gap-1 text-xs text-theme-4 hover:text-emerald-400 transition-colors"
+              >
+                <ClipboardIcon className="w-3.5 h-3.5" />
+                {t("addEntry.scanFromClipboard")}
+              </button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileInputChange}
             />
           </div>
 
