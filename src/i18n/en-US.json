@@ -1,0 +1,123 @@
+{
+  "setup": {
+    "title": "Create vault",
+    "subtitle": "Set a master password to encrypt your TOTP tokens.",
+    "password": "Master password",
+    "confirm": "Confirm password",
+    "submit": "Create vault",
+    "submitting": "Creating...",
+    "errorMinLength": "Password must be at least 6 characters.",
+    "errorMismatch": "Passwords do not match."
+  },
+  "reset": {
+    "link": "Forgot your password?",
+    "title": "Reset vault",
+    "warning": "This action is irreversible. All saved TOTP tokens will be permanently deleted and cannot be recovered.",
+    "typePrompt": "To confirm, type DELETE below:",
+    "placeholder": "DELETE",
+    "submit": "Reset vault",
+    "submitting": "Resetting...",
+    "cancel": "Cancel"
+  },
+  "unlock": {
+    "title": "Personal TOTP",
+    "subtitle": "Enter your master password to unlock.",
+    "password": "Master password",
+    "submit": "Unlock",
+    "submitting": "Unlocking...",
+    "errorWrong": "Incorrect password.",
+    "errorCapsLock": " Check if Caps Lock is on."
+  },
+  "main": {
+    "appName": "Personal TOTP",
+    "search": "Search...",
+    "lock": "Lock",
+    "addAccount": "Add account",
+    "settings": "Settings",
+    "emptyTitle": "No accounts added.",
+    "emptySubtitle": "Click + to add your first TOTP token.",
+    "noResults": "No results for \"{{query}}\".",
+    "removeConfirm": "Remove \"{{name}}\"?"
+  },
+  "entry": {
+    "unfavorite": "Remove from favorites",
+    "favorite": "Favorite",
+    "edit": "Edit",
+    "remove": "Remove",
+    "cancel": "Cancel"
+  },
+  "addEntry": {
+    "title": "Add TOTP account",
+    "otpauthHint": "Paste an <1>otpauth://</1> URL in the Secret field to auto-fill all fields.",
+    "name": "Name *",
+    "namePlaceholder": "e.g. GitHub",
+    "issuer": "Issuer (optional)",
+    "issuerPlaceholder": "e.g. github.com",
+    "secret": "Secret (base32) *",
+    "secretPlaceholder": "JBSWY3DPEHPK3PXP or otpauth://...",
+    "showAdvanced": "▼ Advanced options",
+    "hideAdvanced": "▲ Hide",
+    "algorithm": "Algorithm",
+    "digits": "Digits",
+    "period": "Period (s)",
+    "cancel": "Cancel",
+    "submit": "Add",
+    "submitting": "Saving...",
+    "errorName": "Name is required.",
+    "errorSecret": "Secret is required."
+  },
+  "editEntry": {
+    "title": "Edit TOTP account",
+    "secretHint": "Leave blank to keep the current secret.",
+    "name": "Name *",
+    "namePlaceholder": "e.g. GitHub",
+    "issuer": "Issuer (optional)",
+    "issuerPlaceholder": "e.g. github.com",
+    "secret": "New secret (base32)",
+    "secretPlaceholder": "Leave blank to keep unchanged",
+    "showAdvanced": "▼ Advanced options",
+    "hideAdvanced": "▲ Hide",
+    "algorithm": "Algorithm",
+    "digits": "Digits",
+    "period": "Period (s)",
+    "cancel": "Cancel",
+    "submit": "Save",
+    "submitting": "Saving...",
+    "errorName": "Name is required."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languages": {
+      "pt-BR": "Português (Brasil)",
+      "en-US": "English (US)"
+    },
+    "shortcut": "Global shortcut",
+    "shortcutCapture": "Press a combination...",
+    "shortcutError": "Invalid shortcut or already in use",
+    "shortcutNeedsModifier": "Use at least one modifier (Alt, Ctrl, Shift)",
+    "importExport": "Import / Export",
+    "importButton": "Import JSON",
+    "importTemplate": "Download JSON template",
+    "importSuccess": "{{imported}} tokens imported successfully.",
+    "importPartial": "{{imported}} imported, {{failed}} skipped (invalid).",
+    "importError": "Import failed — check the file format.",
+    "templateDownloaded": "Template downloaded.",
+    "exportVault": "Export vault",
+    "exportDesc": "Save all tokens to a JSON file. The file will contain plaintext secrets — keep it in a secure location.",
+    "exportButton": "Export to JSON",
+    "exportSuccess": "{{count}} tokens exported → {{filename}}",
+    "exportError": "Export failed.",
+    "diagnostics": "Diagnostics",
+    "openLogFolder": "Open log folder",
+    "autoLock": "Auto-lock",
+    "autoLockOptions": {
+      "never": "Never",
+      "300": "5 minutes",
+      "600": "10 minutes",
+      "900": "15 minutes",
+      "1800": "30 minutes",
+      "3600": "1 hour"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "$schema": "https://pnpm.io/pnpm-json.json",
+  "onlyBuiltDependencies": ["esbuild"]
+}

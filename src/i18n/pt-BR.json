@@ -1,0 +1,123 @@
+{
+  "setup": {
+    "title": "Criar vault",
+    "subtitle": "Defina uma senha mestra para criptografar seus tokens TOTP.",
+    "password": "Senha mestra",
+    "confirm": "Confirmar senha",
+    "submit": "Criar vault",
+    "submitting": "Criando...",
+    "errorMinLength": "Senha deve ter ao menos 6 caracteres.",
+    "errorMismatch": "As senhas não coincidem."
+  },
+  "reset": {
+    "link": "Esqueceu a senha?",
+    "title": "Redefinir vault",
+    "warning": "Esta ação é irreversível. Todos os tokens TOTP cadastrados serão permanentemente removidos e não poderão ser recuperados.",
+    "typePrompt": "Para confirmar, digite DELETE abaixo:",
+    "placeholder": "DELETE",
+    "submit": "Redefinir vault",
+    "submitting": "Redefinindo...",
+    "cancel": "Cancelar"
+  },
+  "unlock": {
+    "title": "Personal TOTP",
+    "subtitle": "Digite a senha mestra para desbloquear.",
+    "password": "Senha mestra",
+    "submit": "Desbloquear",
+    "submitting": "Desbloqueando...",
+    "errorWrong": "Senha incorreta.",
+    "errorCapsLock": " Verifique se o Caps Lock está ativado."
+  },
+  "main": {
+    "appName": "Personal TOTP",
+    "search": "Buscar...",
+    "lock": "Bloquear",
+    "addAccount": "Adicionar conta",
+    "settings": "Configurações",
+    "emptyTitle": "Nenhuma conta adicionada.",
+    "emptySubtitle": "Clique em + para adicionar seu primeiro token TOTP.",
+    "noResults": "Nenhum resultado para \"{{query}}\".",
+    "removeConfirm": "Remover \"{{name}}\"?"
+  },
+  "entry": {
+    "unfavorite": "Remover dos favoritos",
+    "favorite": "Favoritar",
+    "edit": "Editar",
+    "remove": "Remover",
+    "cancel": "Cancelar"
+  },
+  "addEntry": {
+    "title": "Adicionar conta TOTP",
+    "otpauthHint": "Cole uma URL <1>otpauth://</1> no campo Secret para preencher automaticamente.",
+    "name": "Nome *",
+    "namePlaceholder": "ex: GitHub",
+    "issuer": "Emissor (opcional)",
+    "issuerPlaceholder": "ex: github.com",
+    "secret": "Secret (base32) *",
+    "secretPlaceholder": "JBSWY3DPEHPK3PXP ou otpauth://...",
+    "showAdvanced": "▼ Opções avançadas",
+    "hideAdvanced": "▲ Ocultar",
+    "algorithm": "Algoritmo",
+    "digits": "Dígitos",
+    "period": "Período (s)",
+    "cancel": "Cancelar",
+    "submit": "Adicionar",
+    "submitting": "Salvando...",
+    "errorName": "Nome é obrigatório.",
+    "errorSecret": "Secret é obrigatório."
+  },
+  "editEntry": {
+    "title": "Editar conta TOTP",
+    "secretHint": "Deixe em branco para manter o secret atual.",
+    "name": "Nome *",
+    "namePlaceholder": "ex: GitHub",
+    "issuer": "Emissor (opcional)",
+    "issuerPlaceholder": "ex: github.com",
+    "secret": "Novo secret (base32)",
+    "secretPlaceholder": "Deixe em branco para não alterar",
+    "showAdvanced": "▼ Opções avançadas",
+    "hideAdvanced": "▲ Ocultar",
+    "algorithm": "Algoritmo",
+    "digits": "Dígitos",
+    "period": "Período (s)",
+    "cancel": "Cancelar",
+    "submit": "Salvar",
+    "submitting": "Salvando...",
+    "errorName": "Nome é obrigatório."
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma",
+    "languages": {
+      "pt-BR": "Português (Brasil)",
+      "en-US": "English (US)"
+    },
+    "shortcut": "Atalho global",
+    "shortcutCapture": "Pressione a combinação...",
+    "shortcutError": "Atalho inválido ou já em uso",
+    "shortcutNeedsModifier": "Use ao menos um modificador (Alt, Ctrl, Shift)",
+    "importExport": "Importar / Exportar",
+    "importButton": "Importar JSON",
+    "importTemplate": "Baixar modelo de JSON",
+    "importSuccess": "{{imported}} tokens importados com sucesso.",
+    "importPartial": "{{imported}} importados, {{failed}} ignorados (inválidos).",
+    "importError": "Falha ao importar — verifique o formato do arquivo.",
+    "templateDownloaded": "Modelo baixado.",
+    "exportVault": "Exportar vault",
+    "exportDesc": "Salva todos os tokens em um arquivo JSON. O arquivo conterá os secrets em texto puro — mantenha-o em local seguro.",
+    "exportButton": "Exportar para JSON",
+    "exportSuccess": "{{count}} tokens exportados → {{filename}}",
+    "exportError": "Falha ao exportar.",
+    "diagnostics": "Diagnóstico",
+    "openLogFolder": "Abrir pasta de logs",
+    "autoLock": "Bloqueio automático",
+    "autoLockOptions": {
+      "never": "Nunca",
+      "300": "5 minutos",
+      "600": "10 minutos",
+      "900": "15 minutos",
+      "1800": "30 minutos",
+      "3600": "1 hora"
+    }
+  }
+}
