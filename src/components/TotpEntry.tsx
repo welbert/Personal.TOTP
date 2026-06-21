@@ -132,20 +132,20 @@ export default function TotpEntry({
 
   return (
     <div
-      className="group bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 cursor-pointer hover:border-slate-600 transition-all"
+      className="group bg-theme-surface border border-theme-line rounded-xl px-4 py-3 cursor-pointer hover:border-theme-ring transition-all"
       onClick={handleCopy}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2 min-w-0">
           {shortcutKey !== undefined && (
-            <span className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px] font-mono font-semibold bg-slate-800 text-slate-500 border border-slate-700 group-hover:border-slate-600 group-hover:text-slate-400 transition-colors">
+            <span className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px] font-mono font-semibold bg-theme-raised text-theme-4 border border-theme-border group-hover:border-theme-ring group-hover:text-theme-3 transition-colors">
               {shortcutKey}
             </span>
           )}
           <div className="min-w-0">
-            <p className="text-sm font-medium text-slate-100 truncate">{entry.name}</p>
+            <p className="text-sm font-medium text-theme-1 truncate">{entry.name}</p>
             {entry.issuer && (
-              <p className="text-xs text-slate-500 truncate">{entry.issuer}</p>
+              <p className="text-xs text-theme-4 truncate">{entry.issuer}</p>
             )}
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function TotpEntry({
             className={`p-0.5 transition-colors ${
               entry.is_favorite
                 ? "text-amber-400 hover:text-amber-300"
-                : "text-slate-700 hover:text-amber-400 opacity-0 group-hover:opacity-100"
+                : "text-theme-5 hover:text-amber-400 opacity-0 group-hover:opacity-100"
             }`}
             title={entry.is_favorite ? t("entry.unfavorite") : t("entry.favorite")}
           >
@@ -165,7 +165,7 @@ export default function TotpEntry({
 
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(entry.id); }}
-            className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-slate-300 transition-all p-0.5"
+            className="opacity-0 group-hover:opacity-100 text-theme-5 hover:text-theme-2 transition-all p-0.5"
             title={t("entry.edit")}
           >
             <PencilIcon className="w-3.5 h-3.5" />
@@ -174,7 +174,7 @@ export default function TotpEntry({
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all p-0.5"
+            className="opacity-0 group-hover:opacity-100 text-theme-5 hover:text-red-400 transition-all p-0.5"
             title={t("entry.remove")}
           >
             <TrashIcon className="w-3.5 h-3.5" />
@@ -188,23 +188,23 @@ export default function TotpEntry({
             {code ? formatCode(code.current) : "------"}
           </span>
           {code && (
-            <span className="font-mono text-xs text-slate-600 tracking-widest">
+            <span className="font-mono text-xs text-theme-5 tracking-widest">
               {formatCode(code.next)}
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className={`text-xs tabular-nums ${urgent ? "text-amber-400" : "text-slate-500"}`}>
+          <span className={`text-xs tabular-nums ${urgent ? "text-amber-400" : "text-theme-4"}`}>
             {remaining}s
           </span>
-          <div className={`transition-all ${showCopied ? "text-emerald-400" : "text-slate-600 group-hover:text-slate-400"}`}>
+          <div className={`transition-all ${showCopied ? "text-emerald-400" : "text-theme-5 group-hover:text-theme-3"}`}>
             {showCopied ? <CheckIcon className="w-3.5 h-3.5" /> : <CopyIcon className="w-3.5 h-3.5" />}
           </div>
         </div>
       </div>
 
-      <div className="mt-2.5 h-0.5 bg-slate-800 rounded-full overflow-hidden">
+      <div className="mt-2.5 h-0.5 bg-theme-raised rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-none ${urgent ? "bg-amber-400" : "bg-emerald-500"}`}
           style={{ width: `${progress}%` }}

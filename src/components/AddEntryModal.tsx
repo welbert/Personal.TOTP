@@ -19,7 +19,6 @@ interface FormState {
 
 function parseOtpauthUrl(url: string): Partial<FormState> {
   try {
-    // otpauth://totp/LABEL?secret=XXX&issuer=YYY&...
     const withProtocol = url.replace("otpauth://", "http://otpauth/");
     const u = new URL(withProtocol);
     const params = u.searchParams;
@@ -29,8 +28,8 @@ function parseOtpauthUrl(url: string): Partial<FormState> {
       : ["", rawLabel];
 
     return {
-      name: labelName || rawLabel,
-      issuer: params.get("issuer") || labelIssuer || "",
+      name: params.get("issuer") || labelIssuer || rawLabel,
+      issuer: labelName || "",
       secret: (params.get("secret") || "").toUpperCase(),
       algorithm: params.get("algorithm") || "SHA1",
       digits: params.get("digits") || "6",
@@ -40,6 +39,10 @@ function parseOtpauthUrl(url: string): Partial<FormState> {
     return {};
   }
 }
+
+const inputCls = "w-full bg-theme-raised border border-theme-border rounded-lg px-3 py-2 text-sm text-theme-1 placeholder-theme-4 outline-none focus:border-emerald-500 transition-colors";
+const selectCls = "w-full bg-theme-raised border border-theme-border rounded-lg px-2 py-2 text-sm text-theme-1 outline-none focus:border-emerald-500";
+const labelCls = "block text-xs text-theme-3 mb-1";
 
 export default function AddEntryModal({ onClose, onAdded }: Props) {
   const { t } = useTranslation();
@@ -99,60 +102,60 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-          <h2 className="text-sm font-semibold text-slate-100">{t("addEntry.title")}</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors">
+      <div className="bg-theme-surface border border-theme-border rounded-2xl w-full max-w-sm shadow-2xl">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-theme-line">
+          <h2 className="text-sm font-semibold text-theme-1">{t("addEntry.title")}</h2>
+          <button onClick={onClose} className="text-theme-4 hover:text-theme-2 transition-colors">
             <XIcon className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-3">
-          <p className="text-xs text-slate-500 -mt-1 mb-1">
+          <p className="text-xs text-theme-4 -mt-1 mb-1">
             <Trans i18nKey="addEntry.otpauthHint">
               Cole uma URL <code className="text-emerald-400">otpauth://</code> no campo Secret para preencher automaticamente.
             </Trans>
           </p>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">{t("addEntry.name")}</label>
+            <label className={labelCls}>{t("addEntry.name")}</label>
             <input
               type="text"
               placeholder={t("addEntry.namePlaceholder")}
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
               autoFocus
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 transition-colors"
+              className={inputCls}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">{t("addEntry.issuer")}</label>
+            <label className={labelCls}>{t("addEntry.issuer")}</label>
             <input
               type="text"
               placeholder={t("addEntry.issuerPlaceholder")}
               value={form.issuer}
               onChange={(e) => set("issuer", e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 transition-colors"
+              className={inputCls}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">{t("addEntry.secret")}</label>
+            <label className={labelCls}>{t("addEntry.secret")}</label>
             <input
               type="text"
               placeholder={t("addEntry.secretPlaceholder")}
               value={form.secret}
               onChange={(e) => set("secret", e.target.value.toUpperCase())}
               onPaste={handleSecretPaste}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 font-mono transition-colors"
+              className={`${inputCls} font-mono`}
             />
           </div>
 
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
-            className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            className="text-xs text-theme-4 hover:text-theme-2 transition-colors"
           >
             {showAdvanced ? t("addEntry.hideAdvanced") : t("addEntry.showAdvanced")}
           </button>
@@ -160,35 +163,23 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
           {showAdvanced && (
             <div className="grid grid-cols-3 gap-2 fade-in">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t("addEntry.algorithm")}</label>
-                <select
-                  value={form.algorithm}
-                  onChange={(e) => set("algorithm", e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
-                >
+                <label className={labelCls}>{t("addEntry.algorithm")}</label>
+                <select value={form.algorithm} onChange={(e) => set("algorithm", e.target.value)} className={selectCls}>
                   <option>SHA1</option>
                   <option>SHA256</option>
                   <option>SHA512</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t("addEntry.digits")}</label>
-                <select
-                  value={form.digits}
-                  onChange={(e) => set("digits", e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
-                >
+                <label className={labelCls}>{t("addEntry.digits")}</label>
+                <select value={form.digits} onChange={(e) => set("digits", e.target.value)} className={selectCls}>
                   <option value="6">6</option>
                   <option value="8">8</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t("addEntry.period")}</label>
-                <select
-                  value={form.period}
-                  onChange={(e) => set("period", e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
-                >
+                <label className={labelCls}>{t("addEntry.period")}</label>
+                <select value={form.period} onChange={(e) => set("period", e.target.value)} className={selectCls}>
                   <option value="30">30</option>
                   <option value="60">60</option>
                 </select>
@@ -202,7 +193,7 @@ export default function AddEntryModal({ onClose, onAdded }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-lg py-2 transition-colors"
+              className="flex-1 bg-theme-raised hover:bg-theme-hover text-theme-2 text-sm font-medium rounded-lg py-2 transition-colors"
             >
               {t("addEntry.cancel")}
             </button>

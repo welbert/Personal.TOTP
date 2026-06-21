@@ -111,6 +111,12 @@
     "exportError": "Export failed.",
     "diagnostics": "Diagnostics",
     "openLogFolder": "Open log folder",
+    "theme": "Theme",
+    "themes": {
+      "system": "System",
+      "dark": "Dark",
+      "light": "Light"
+    },
     "autoLock": "Auto-lock",
     "autoLockOptions": {
       "never": "Never",

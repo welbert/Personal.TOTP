@@ -28,7 +28,7 @@ export default function ResetVaultModal({ onConfirmed, onCancel }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4 fade-in">
-      <div className="bg-slate-900 border border-red-900/50 rounded-2xl w-full max-w-sm shadow-2xl p-5">
+      <div className="bg-theme-surface border border-red-900/50 rounded-2xl w-full max-w-sm shadow-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-8 h-8 rounded-lg bg-red-900/40 flex items-center justify-center shrink-0">
             <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -38,16 +38,16 @@ export default function ResetVaultModal({ onConfirmed, onCancel }: Props) {
           <h2 className="text-sm font-semibold text-red-400">{t("reset.title")}</h2>
         </div>
 
-        <p className="text-sm text-slate-300 mb-4">{t("reset.warning")}</p>
+        <p className="text-sm text-theme-2 mb-4">{t("reset.warning")}</p>
 
-        <p className="text-xs text-slate-400 mb-1.5">{t("reset.typePrompt")}</p>
+        <p className="text-xs text-theme-3 mb-1.5">{t("reset.typePrompt")}</p>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t("reset.placeholder")}
           autoFocus
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-600 outline-none focus:border-red-500 transition-colors font-mono mb-4"
+          className="w-full bg-theme-raised border border-theme-border rounded-lg px-3 py-2 text-sm text-theme-1 placeholder-theme-5 outline-none focus:border-red-500 transition-colors font-mono mb-4"
         />
 
         {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
@@ -56,7 +56,7 @@ export default function ResetVaultModal({ onConfirmed, onCancel }: Props) {
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-lg py-2 transition-colors"
+            className="flex-1 bg-theme-raised hover:bg-theme-hover text-theme-2 text-sm font-medium rounded-lg py-2 transition-colors"
           >
             {t("reset.cancel")}
           </button>

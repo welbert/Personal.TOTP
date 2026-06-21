@@ -14,8 +14,8 @@ export default function ToastContainer({ toasts }: Props) {
           key={t.id}
           className={`flex items-start gap-2.5 px-4 py-3 rounded-xl shadow-xl text-sm max-w-[340px] w-max animate-slide-up border ${
             t.type === "success"
-              ? "bg-slate-800 border-emerald-600/40 text-slate-100"
-              : "bg-slate-800 border-red-600/40 text-slate-100"
+              ? "bg-theme-raised border-emerald-600/40 text-theme-1"
+              : "bg-theme-raised border-red-600/40 text-theme-1"
           }`}
         >
           {t.type === "success" ? (

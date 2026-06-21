@@ -18,6 +18,10 @@ interface Props {
   onSaved: () => void;
 }
 
+const inputCls = "w-full bg-theme-raised border border-theme-border rounded-lg px-3 py-2 text-sm text-theme-1 placeholder-theme-4 outline-none focus:border-emerald-500 transition-colors";
+const selectCls = "w-full bg-theme-raised border border-theme-border rounded-lg px-2 py-2 text-sm text-theme-1 outline-none focus:border-emerald-500";
+const labelCls = "block text-xs text-theme-3 mb-1";
+
 export default function EditEntryModal({ entry, onClose, onSaved }: Props) {
   const { t } = useTranslation();
   const [name, setName] = useState(entry.name);
@@ -61,54 +65,54 @@ export default function EditEntryModal({ entry, onClose, onSaved }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-          <h2 className="text-sm font-semibold text-slate-100">{t("editEntry.title")}</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors">
+      <div className="bg-theme-surface border border-theme-border rounded-2xl w-full max-w-sm shadow-2xl">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-theme-line">
+          <h2 className="text-sm font-semibold text-theme-1">{t("editEntry.title")}</h2>
+          <button onClick={onClose} className="text-theme-4 hover:text-theme-2 transition-colors">
             <XIcon className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-3">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">{t("editEntry.name")}</label>
+            <label className={labelCls}>{t("editEntry.name")}</label>
             <input
               type="text"
               placeholder={t("editEntry.namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 transition-colors"
+              className={inputCls}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">{t("editEntry.issuer")}</label>
+            <label className={labelCls}>{t("editEntry.issuer")}</label>
             <input
               type="text"
               placeholder={t("editEntry.issuerPlaceholder")}
               value={issuer}
               onChange={(e) => setIssuer(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 transition-colors"
+              className={inputCls}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">{t("editEntry.secret")}</label>
+            <label className={labelCls}>{t("editEntry.secret")}</label>
             <input
               type="text"
               placeholder={t("editEntry.secretPlaceholder")}
               value={newSecret}
               onChange={(e) => setNewSecret(e.target.value.toUpperCase())}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 font-mono transition-colors"
+              className={`${inputCls} font-mono`}
             />
-            <p className="text-xs text-slate-600 mt-1">{t("editEntry.secretHint")}</p>
+            <p className="text-xs text-theme-5 mt-1">{t("editEntry.secretHint")}</p>
           </div>
 
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
-            className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            className="text-xs text-theme-4 hover:text-theme-2 transition-colors"
           >
             {showAdvanced ? t("editEntry.hideAdvanced") : t("editEntry.showAdvanced")}
           </button>
@@ -116,35 +120,23 @@ export default function EditEntryModal({ entry, onClose, onSaved }: Props) {
           {showAdvanced && (
             <div className="grid grid-cols-3 gap-2 fade-in">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t("editEntry.algorithm")}</label>
-                <select
-                  value={algorithm}
-                  onChange={(e) => setAlgorithm(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
-                >
+                <label className={labelCls}>{t("editEntry.algorithm")}</label>
+                <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)} className={selectCls}>
                   <option>SHA1</option>
                   <option>SHA256</option>
                   <option>SHA512</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t("editEntry.digits")}</label>
-                <select
-                  value={digits}
-                  onChange={(e) => setDigits(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
-                >
+                <label className={labelCls}>{t("editEntry.digits")}</label>
+                <select value={digits} onChange={(e) => setDigits(e.target.value)} className={selectCls}>
                   <option value="6">6</option>
                   <option value="8">8</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">{t("editEntry.period")}</label>
-                <select
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
-                >
+                <label className={labelCls}>{t("editEntry.period")}</label>
+                <select value={period} onChange={(e) => setPeriod(e.target.value)} className={selectCls}>
                   <option value="30">30</option>
                   <option value="60">60</option>
                 </select>
@@ -158,7 +150,7 @@ export default function EditEntryModal({ entry, onClose, onSaved }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-lg py-2 transition-colors"
+              className="flex-1 bg-theme-raised hover:bg-theme-hover text-theme-2 text-sm font-medium rounded-lg py-2 transition-colors"
             >
               {t("editEntry.cancel")}
             </button>

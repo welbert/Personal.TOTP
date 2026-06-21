@@ -4,6 +4,8 @@ import App from "./App";
 import "./index.css";
 import "./i18n";
 
+import { applyTheme, getTheme } from "./theme";
+applyTheme(getTheme());
 document.addEventListener("contextmenu", (e) => e.preventDefault());
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

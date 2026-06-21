@@ -151,25 +151,25 @@ export default function TotpList({ onLock }: Props) {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950">
+    <div className="flex flex-col h-screen bg-theme-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3 shrink-0">
         <div className="flex items-baseline gap-2">
-          <span className="text-sm font-semibold text-slate-300">{t("main.appName")}</span>
-          {version && <span className="text-xs text-slate-600">v{version}</span>}
+          <span className="text-sm font-semibold text-theme-2">{t("main.appName")}</span>
+          {version && <span className="text-xs text-theme-5">v{version}</span>}
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowSettings(true)}
             title={t("main.settings")}
-            className="text-slate-500 hover:text-slate-300 transition-colors p-1"
+            className="text-theme-4 hover:text-theme-2 transition-colors p-1"
           >
             <GearIcon className="w-4 h-4" />
           </button>
           <button
             onClick={handleLock}
             title={t("main.lock")}
-            className="text-slate-500 hover:text-slate-300 transition-colors p-1"
+            className="text-theme-4 hover:text-theme-2 transition-colors p-1"
           >
             <LockIcon className="w-4 h-4" />
           </button>
@@ -178,8 +178,8 @@ export default function TotpList({ onLock }: Props) {
 
       {/* Search */}
       <div className="px-4 pb-3 shrink-0">
-        <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 focus-within:border-slate-600 transition-colors">
-          <SearchIcon className="w-4 h-4 text-slate-600 shrink-0" />
+        <div className="flex items-center gap-2 bg-theme-surface border border-theme-line rounded-lg px-3 py-2 focus-within:border-theme-ring transition-colors">
+          <SearchIcon className="w-4 h-4 text-theme-5 shrink-0" />
           <input
             ref={searchRef}
             type="text"
@@ -189,17 +189,17 @@ export default function TotpList({ onLock }: Props) {
             onKeyDown={(e) => { if (e.key === "Escape") searchRef.current?.blur(); }}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
-            className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-600 outline-none"
+            className="flex-1 bg-transparent text-sm text-theme-1 placeholder-theme-5 outline-none"
           />
           {search ? (
             <button
               onClick={() => setSearch("")}
-              className="text-slate-600 hover:text-slate-400 text-xs"
+              className="text-theme-5 hover:text-theme-3 text-xs"
             >
               ✕
             </button>
           ) : !searchFocused && (
-            <kbd className="text-slate-600 text-xs font-mono bg-slate-800 border border-slate-700 rounded px-1 py-0.5 pointer-events-none">
+            <kbd className="text-theme-5 text-xs font-mono bg-theme-raised border border-theme-border rounded px-1 py-0.5 pointer-events-none">
               S
             </kbd>
           )}
@@ -210,7 +210,7 @@ export default function TotpList({ onLock }: Props) {
       <div className="flex-1 overflow-y-auto px-4 space-y-2 pb-20 min-h-0">
         {loading && (
           <div className="flex items-center justify-center py-12">
-            <div className="w-5 h-5 border-2 border-slate-700 border-t-emerald-400 rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-theme-border border-t-emerald-400 rounded-full animate-spin" />
           </div>
         )}
 
@@ -218,11 +218,11 @@ export default function TotpList({ onLock }: Props) {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             {entries.length === 0 ? (
               <>
-                <p className="text-slate-500 text-sm mb-1">{t("main.emptyTitle")}</p>
-                <p className="text-slate-600 text-xs">{t("main.emptySubtitle")}</p>
+                <p className="text-theme-4 text-sm mb-1">{t("main.emptyTitle")}</p>
+                <p className="text-theme-5 text-xs">{t("main.emptySubtitle")}</p>
               </>
             ) : (
-              <p className="text-slate-500 text-sm">{t("main.noResults", { query: search })}</p>
+              <p className="text-theme-4 text-sm">{t("main.noResults", { query: search })}</p>
             )}
           </div>
         )}

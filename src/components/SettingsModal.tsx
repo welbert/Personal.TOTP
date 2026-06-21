@@ -7,6 +7,7 @@ import { logger } from "../logger";
 import { useToast } from "../hooks/useToast";
 import ToastContainer from "./ToastContainer";
 import { XIcon } from "./icons";
+import { getTheme, setTheme, type Theme } from "../theme";
 
 const LANGUAGES = ["pt-BR", "en-US"] as const;
 
@@ -36,6 +37,7 @@ export default function SettingsModal({ onClose, onImported }: Props) {
   const [shortcutError, setShortcutError] = useState("");
   const captureRef = useRef<HTMLButtonElement>(null);
   const { toasts, show: showToast } = useToast();
+  const [theme, setThemeState] = useState<Theme>(getTheme);
 
   useEffect(() => {
     invoke<number | null>("get_auto_lock_timeout").then(setAutoLock);
@@ -45,6 +47,11 @@ export default function SettingsModal({ onClose, onImported }: Props) {
   function handleLanguage(code: string) {
     i18n.changeLanguage(code);
     localStorage.setItem("lang", code);
+  }
+
+  function handleTheme(opt: Theme) {
+    setThemeState(opt);
+    setTheme(opt);
   }
 
   async function handleAutoLock(secs: number | null) {
@@ -140,7 +147,7 @@ export default function SettingsModal({ onClose, onImported }: Props) {
       return;
     }
 
-    parts.push(e.code); // e.g. "KeyA", "Digit1", "F5"
+    parts.push(e.code);
     const newShortcut = parts.join("+");
 
     setCapturing(false);
@@ -152,34 +159,49 @@ export default function SettingsModal({ onClose, onImported }: Props) {
       });
   }
 
+  const optionCls = (active: boolean) =>
+    `w-full text-left px-3 py-2 rounded-lg text-sm transition-colors border ${
+      active
+        ? "bg-emerald-600/20 text-emerald-400 border-emerald-600/30"
+        : "text-theme-2 hover:bg-theme-raised border-transparent"
+    }`;
+
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 fade-in">
       <ToastContainer toasts={toasts} />
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-          <h2 className="text-sm font-semibold text-slate-100">{t("settings.title")}</h2>
+      <div className="bg-theme-surface border border-theme-border rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-theme-line">
+          <h2 className="text-sm font-semibold text-theme-1">{t("settings.title")}</h2>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-300 transition-colors"
+            className="text-theme-4 hover:text-theme-2 transition-colors"
           >
             <XIcon className="w-4 h-4" />
           </button>
         </div>
 
         <div className="p-4 space-y-5 overflow-y-auto max-h-[calc(100vh-8rem)]">
+          {/* Theme */}
+          <div>
+            <p className="text-xs text-theme-3 mb-2">{t("settings.theme")}</p>
+            <div className="space-y-1">
+              {(["system", "dark", "light"] as Theme[]).map((opt) => (
+                <button key={opt} onClick={() => handleTheme(opt)} className={optionCls(theme === opt)}>
+                  {t(`settings.themes.${opt}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Language */}
           <div>
-            <p className="text-xs text-slate-400 mb-2">{t("settings.language")}</p>
+            <p className="text-xs text-theme-3 mb-2">{t("settings.language")}</p>
             <div className="space-y-1">
               {LANGUAGES.map((code) => (
                 <button
                   key={code}
                   onClick={() => handleLanguage(code)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                    i18n.language === code
-                      ? "bg-emerald-600/20 text-emerald-400 border border-emerald-600/30"
-                      : "text-slate-300 hover:bg-slate-800 border border-transparent"
-                  }`}
+                  className={optionCls(i18n.language === code)}
                 >
                   {t(`settings.languages.${code}`)}
                 </button>
@@ -189,7 +211,7 @@ export default function SettingsModal({ onClose, onImported }: Props) {
 
           {/* Global shortcut */}
           <div>
-            <p className="text-xs text-slate-400 mb-2">{t("settings.shortcut")}</p>
+            <p className="text-xs text-theme-3 mb-2">{t("settings.shortcut")}</p>
             <button
               ref={captureRef}
               onClick={startCapture}
@@ -198,7 +220,7 @@ export default function SettingsModal({ onClose, onImported }: Props) {
               className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm border transition-colors outline-none ${
                 capturing
                   ? "border-emerald-500 text-emerald-400 bg-emerald-600/10 animate-pulse"
-                  : "border-slate-700 text-slate-300 bg-slate-800 hover:border-slate-500"
+                  : "border-theme-border text-theme-2 bg-theme-raised hover:border-theme-ring"
               }`}
             >
               {capturing ? (
@@ -206,8 +228,8 @@ export default function SettingsModal({ onClose, onImported }: Props) {
               ) : (
                 formatShortcut(shortcut).map((part, i) => (
                   <span key={i} className="flex items-center gap-1.5">
-                    {i > 0 && <span className="text-slate-600 text-xs">+</span>}
-                    <kbd className="bg-slate-700 text-slate-200 text-xs font-mono px-1.5 py-0.5 rounded">
+                    {i > 0 && <span className="text-theme-5 text-xs">+</span>}
+                    <kbd className="bg-theme-hover text-theme-1 text-xs font-mono px-1.5 py-0.5 rounded">
                       {part}
                     </kbd>
                   </span>
@@ -221,14 +243,14 @@ export default function SettingsModal({ onClose, onImported }: Props) {
 
           {/* Auto-lock */}
           <div>
-            <p className="text-xs text-slate-400 mb-2">{t("settings.autoLock")}</p>
+            <p className="text-xs text-theme-3 mb-2">{t("settings.autoLock")}</p>
             <select
               value={autoLock ?? "never"}
               onChange={(e) => {
                 const val = e.target.value;
                 handleAutoLock(val === "never" ? null : Number(val));
               }}
-              className="w-full bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-lg px-3 py-2 outline-none focus:border-slate-500 transition-colors cursor-pointer"
+              className="w-full bg-theme-raised border border-theme-border text-theme-1 text-sm rounded-lg px-3 py-2 outline-none focus:border-theme-ring transition-colors cursor-pointer"
             >
               {AUTO_LOCK_OPTIONS.map(({ secs }) => (
                 <option key={secs ?? "never"} value={secs ?? "never"}>
@@ -239,38 +261,37 @@ export default function SettingsModal({ onClose, onImported }: Props) {
           </div>
 
           {/* Import / Export */}
-          <div className="border-t border-slate-800 pt-4">
-            <p className="text-xs text-slate-400 mb-2">{t("settings.importExport")}</p>
+          <div className="border-t border-theme-line pt-4">
+            <p className="text-xs text-theme-3 mb-2">{t("settings.importExport")}</p>
             <div className="space-y-1">
               <button
                 onClick={handleImport}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 border border-transparent transition-colors"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm text-theme-2 hover:bg-theme-raised border border-transparent transition-colors"
               >
                 {t("settings.importButton")}
               </button>
 
               <button
                 onClick={handleTemplate}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-300 hover:bg-slate-800 border border-transparent transition-colors"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm text-theme-4 hover:text-theme-2 hover:bg-theme-raised border border-transparent transition-colors"
               >
                 {t("settings.importTemplate")}
               </button>
               <button
                 onClick={handleExport}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 border border-transparent transition-colors"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm text-theme-2 hover:bg-theme-raised border border-transparent transition-colors"
               >
                 {t("settings.exportButton")}
               </button>
-
             </div>
           </div>
 
           {/* Diagnostics */}
-          <div className="border-t border-slate-800 pt-4">
-            <p className="text-xs text-slate-400 mb-2">{t("settings.diagnostics")}</p>
+          <div className="border-t border-theme-line pt-4">
+            <p className="text-xs text-theme-3 mb-2">{t("settings.diagnostics")}</p>
             <button
               onClick={() => invoke("open_log_dir")}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 border border-transparent transition-colors"
+              className="w-full text-left px-3 py-2 rounded-lg text-sm text-theme-2 hover:bg-theme-raised border border-transparent transition-colors"
             >
               {t("settings.openLogFolder")}
             </button>

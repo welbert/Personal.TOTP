@@ -1,5 +1,53 @@
 @import "tailwindcss";
 
+/* ── Theme tokens ─────────────────────────────────────────── */
+:root {
+  /* dark (default) */
+  --theme-bg:       #0a0a0f;
+  --theme-surface:  #0f172a;
+  --theme-raised:   #1e293b;
+  --theme-hover:    #334155;
+  --theme-line:     #1e293b;
+  --theme-border:   #334155;
+  --theme-ring:     #475569;
+  --theme-1:        #f1f5f9;
+  --theme-2:        #cbd5e1;
+  --theme-3:        #94a3b8;
+  --theme-4:        #64748b;
+  --theme-5:        #475569;
+}
+
+[data-theme="light"] {
+  --theme-bg:       #f8fafc;
+  --theme-surface:  #ffffff;
+  --theme-raised:   #f1f5f9;
+  --theme-hover:    #e2e8f0;
+  --theme-line:     #e2e8f0;
+  --theme-border:   #cbd5e1;
+  --theme-ring:     #94a3b8;
+  --theme-1:        #0f172a;
+  --theme-2:        #334155;
+  --theme-3:        #64748b;
+  --theme-4:        #94a3b8;
+  --theme-5:        #cbd5e1;
+}
+
+@theme inline {
+  --color-theme-bg:      var(--theme-bg);
+  --color-theme-surface: var(--theme-surface);
+  --color-theme-raised:  var(--theme-raised);
+  --color-theme-hover:   var(--theme-hover);
+  --color-theme-line:    var(--theme-line);
+  --color-theme-border:  var(--theme-border);
+  --color-theme-ring:    var(--theme-ring);
+  --color-theme-1:       var(--theme-1);
+  --color-theme-2:       var(--theme-2);
+  --color-theme-3:       var(--theme-3);
+  --color-theme-4:       var(--theme-4);
+  --color-theme-5:       var(--theme-5);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
 @layer base {
   * {
     box-sizing: border-box;
@@ -9,13 +57,13 @@
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #0a0a0f;
-    color: #f1f5f9;
+    background: var(--theme-bg);
+    color: var(--theme-1);
     overflow: hidden;
     user-select: none;
   }
 
-  input {
+  input, textarea {
     user-select: text;
   }
 
@@ -28,7 +76,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: var(--theme-border);
     border-radius: 2px;
   }
 }

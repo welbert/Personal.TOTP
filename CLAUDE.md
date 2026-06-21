@@ -19,6 +19,18 @@ See [docs/versioning.md](docs/versioning.md) for the bump script and semver guid
 
 **Any time you add or modify visible text in a component, you must add or update the corresponding keys in ALL translation files** (`src/i18n/pt-BR.json` and `src/i18n/en-US.json`). Never hardcode display strings in components — always use `t("key")` from `useTranslation()`. See [docs/i18n.md](docs/i18n.md) for the full guide.
 
+## UI theme rule
+
+**Any time you add a new component or touch colors in an existing one, never use hardcoded Tailwind palette classes** (`bg-slate-*`, `text-slate-*`, `border-slate-*`, etc.). Always use the theme token utilities so the component works correctly in both dark and light themes:
+
+| Category   | Utilities                                                          |
+|------------|--------------------------------------------------------------------|
+| Background | `bg-theme-bg` `bg-theme-surface` `bg-theme-raised` `bg-theme-hover` |
+| Border     | `border-theme-line` `border-theme-border` `border-theme-ring`      |
+| Text       | `text-theme-1` `text-theme-2` `text-theme-3` `text-theme-4` `text-theme-5` |
+
+Accent colors (`emerald-*`, `red-*`, `amber-*`) are fine as-is — they are intentional and theme-independent. See [docs/theming.md](docs/theming.md) for the full token reference and visual scale.
+
 ## Stack
 
 | Layer      | Technology                                              |
@@ -48,8 +60,9 @@ pnpm build            # frontend only (dist/)
 Personal.TOTP/
 ├── src/
 │   ├── App.tsx                 # Screen routing (setup/unlock/main)
-│   ├── index.css               # Tailwind + dark theme base
-│   ├── main.tsx                # React entry point — disables right-click context menu; imports i18n before app
+│   ├── index.css               # Tailwind base + CSS custom properties for dark/light themes
+│   ├── main.tsx                # React entry point — applies theme + i18n before mount; disables right-click
+│   ├── theme.ts                # Theme helpers: getTheme / applyTheme / setTheme (see docs/theming.md)
 │   ├── logger.ts               # Logger utility — use instead of console.* (see docs/logger.md)
 │   ├── i18n/
 │   │   ├── index.ts            # i18next init — language detection + persistence
@@ -88,6 +101,7 @@ Personal.TOTP/
 | [docs/database.md](docs/database.md)         | Full SQLite schema, migration, DB location    |
 | [docs/commands.md](docs/commands.md)         | All Tauri commands with TypeScript types      |
 | [docs/i18n.md](docs/i18n.md)                 | i18n setup, key structure, adding languages   |
+| [docs/theming.md](docs/theming.md)           | Theme system: CSS tokens, dark/light, adding themes |
 | [docs/versioning.md](docs/versioning.md)     | Semver guidelines, files to update, bump script |
 | [docs/logger.md](docs/logger.md)             | Logger utility (`src/logger.ts`), log file paths, format, Rust commands |
 

@@ -16,7 +16,6 @@ export default function App() {
     });
   }, []);
 
-  // Auto-lock: Rust emits this event after 5 min hidden
   useEffect(() => {
     let unlisten: (() => void) | undefined;
     listen("auto-locked", () => {
@@ -29,8 +28,8 @@ export default function App() {
 
   if (screen === "loading") {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-950">
-        <div className="w-5 h-5 border-2 border-slate-600 border-t-emerald-400 rounded-full animate-spin" />
+      <div className="flex items-center justify-center h-screen bg-theme-bg">
+        <div className="w-5 h-5 border-2 border-theme-ring border-t-emerald-400 rounded-full animate-spin" />
       </div>
     );
   }
