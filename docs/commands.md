@@ -106,16 +106,37 @@ Triggered by **Settings → Diagnostics → Open log folder**.
 
 > See [docs/logger.md](logger.md) for the full logger guide, file paths, and log format.
 
+## Import / Export
+
+### `export_vault(path: string) → number`
+Decrypts all entries and writes them to `path` as a JSON file in the Personal TOTP format.  
+Returns the number of entries exported.
+
+### `import_vault(path: string) → [number, number, number]`
+Reads a JSON file at `path` and imports entries into the vault.  
+Returns a tuple `[imported, skipped, failed]`:
+- `imported` — entries successfully added
+- `skipped` — entries whose secret already exists in the vault (duplicates detected by decrypting and comparing)
+- `failed` — entries with an invalid or undecodable secret
+
+Each skipped entry is logged at `INFO`; each failed entry is logged at `WARN` — both include the entry name and reason.
+
+### `reset_vault() → void`
+Deletes all rows from `totp_entries` and `config`, and clears the in-memory master key.  
+Requires the user to type `DELETE` in the confirmation modal before the command is called.
+
 ## Keyboard shortcuts (frontend)
 
 Active when the window is focused and no `<input>` has focus:
 
-| Key     | Action                                                                                   |
-|---------|------------------------------------------------------------------------------------------|
-| `1`–`9` | Copies the code at that position in the filtered list and hides the window to the tray  |
-| `Esc`   | Hides the window to the tray                                                             |
+| Key     | Action                                                                                      |
+|---------|---------------------------------------------------------------------------------------------|
+| `S`     | Focuses the search input (no-op when a modal is open)                                       |
+| `1`–`9` | Copies the code at that position in the filtered list and hides the window to the tray      |
+| `Esc` (search focused) | Blurs the search input without clearing text or hiding the window             |
+| `Esc`   | Hides the window to the tray                                                                |
 
-Keys beyond the number of visible entries do nothing.
+Keys `1`–`9` beyond the number of visible entries do nothing.
 
 ## Plugins (called directly, without invoke)
 

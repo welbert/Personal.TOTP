@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
 import { LockIcon } from "./icons";
@@ -16,6 +16,14 @@ export default function UnlockScreen({ onUnlocked, onReset }: Props) {
   const [loading, setLoading] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [showReset, setShowReset] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function focusInput() { passwordRef.current?.focus(); }
+    focusInput();
+    window.addEventListener("focus", focusInput);
+    return () => window.removeEventListener("focus", focusInput);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,11 +57,11 @@ export default function UnlockScreen({ onUnlocked, onReset }: Props) {
 
       <form onSubmit={handleSubmit} className="w-full space-y-3">
         <input
+          ref={passwordRef}
           type="password"
           placeholder={t("unlock.password")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          autoFocus
           className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500 transition-colors"
         />
 

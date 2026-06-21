@@ -64,11 +64,13 @@ export default function SettingsModal({ onClose, onImported }: Props) {
     });
     if (!path) return;
     try {
-      const [imported, failed] = await invoke<[number, number]>("import_vault", { path });
-      if (failed === 0) {
+      const [imported, skipped, failed] = await invoke<[number, number, number]>("import_vault", { path });
+      if (skipped === 0 && failed === 0) {
         showToast(t("settings.importSuccess", { imported }), "success");
+      } else if (failed === 0) {
+        showToast(t("settings.importSkipped", { imported, skipped }), "success");
       } else {
-        showToast(t("settings.importPartial", { imported, failed }), "success");
+        showToast(t("settings.importPartial", { imported, skipped, failed }), "error");
       }
       onImported?.();
     } catch (err) {

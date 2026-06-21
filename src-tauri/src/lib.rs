@@ -333,7 +333,7 @@ fn get_totp_code(id: i64, state: State<AppState>) -> Result<TotpCode, String> {
         .to_bytes()
         .map_err(|_| "secret base32 inválido")?;
 
-    let totp = TOTP::new(
+    let totp = TOTP::new_unchecked(
         to_algorithm(&algorithm),
         digits as usize,
         1,
@@ -341,8 +341,7 @@ fn get_totp_code(id: i64, state: State<AppState>) -> Result<TotpCode, String> {
         decoded,
         None,
         String::new(),
-    )
-    .map_err(|e| e.to_string())?;
+    );
 
     let now = now_secs();
 
@@ -374,7 +373,7 @@ fn add_entry(
     let decoded = Secret::Encoded(secret_clean.clone())
         .to_bytes()
         .map_err(|_| "secret base32 inválido")?;
-    TOTP::new(
+    let _ = TOTP::new_unchecked(
         to_algorithm(&algorithm),
         digits as usize,
         1,
@@ -382,8 +381,7 @@ fn add_entry(
         decoded,
         None,
         String::new(),
-    )
-    .map_err(|e| format!("TOTP inválido: {}", e))?;
+    );
 
     let (ct, nonce) = encrypt(&key, secret_clean.as_bytes());
 
@@ -478,7 +476,7 @@ fn update_entry(
             let decoded = Secret::Encoded(secret_clean.clone())
                 .to_bytes()
                 .map_err(|_| "secret base32 inválido")?;
-            TOTP::new(
+            let _ = TOTP::new_unchecked(
                 to_algorithm(&algorithm),
                 digits as usize,
                 1,
@@ -486,8 +484,7 @@ fn update_entry(
                 decoded,
                 None,
                 String::new(),
-            )
-            .map_err(|e| format!("TOTP inválido: {}", e))?;
+            );
 
             let (ct, nonce) = encrypt(&key, secret_clean.as_bytes());
             db.execute(
@@ -558,7 +555,7 @@ fn quit(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
-fn import_vault(path: String, state: State<AppState>) -> Result<(usize, usize), String> {
+fn import_vault(app: tauri::AppHandle, path: String, state: State<AppState>) -> Result<(usize, usize, usize), String> {
     #[derive(serde::Deserialize)]
     struct ImportEntry {
         name: String,
@@ -581,7 +578,7 @@ fn import_vault(path: String, state: State<AppState>) -> Result<(usize, usize), 
     let file: ImportFile = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
 
     let conn = state.db.lock().unwrap();
-    let (mut imported, mut failed) = (0usize, 0usize);
+    let (mut imported, mut skipped, mut failed) = (0usize, 0usize, 0usize);
 
     for entry in file.entries {
         let secret_clean = entry.secret.trim().to_uppercase();
@@ -590,12 +587,38 @@ fn import_vault(path: String, state: State<AppState>) -> Result<(usize, usize), 
         let period = entry.period.unwrap_or(30);
         let issuer = entry.issuer.unwrap_or_default();
 
+        // Duplicate check: decrypt each stored secret and compare
+        let duplicate = {
+            let mut stmt = conn.prepare("SELECT encrypted_secret, nonce FROM totp_entries").unwrap();
+            let mut dup = false;
+            if let Ok(rows) = stmt.query_map([], |row| {
+                let ct: Vec<u8> = row.get(0)?;
+                let nonce_bytes: Vec<u8> = row.get(1)?;
+                Ok((ct, nonce_bytes))
+            }) {
+                for row in rows.flatten() {
+                    if let Ok(plain) = decrypt_bytes(&key, &row.0, &row.1) {
+                        if String::from_utf8_lossy(&plain).to_uppercase() == secret_clean {
+                            dup = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            dup
+        };
+
+        if duplicate {
+            skipped += 1;
+            append_log(&app, "INFO", &format!("import_vault: duplicate skipped \"{}\" — secret already exists", entry.name));
+            continue;
+        }
+
         let ok = (|| -> Result<(), String> {
             let decoded = Secret::Encoded(secret_clean.clone())
                 .to_bytes()
                 .map_err(|_| "invalid secret")?;
-            TOTP::new(to_algorithm(&algorithm), digits as usize, 1, period as u64, decoded, None, String::new())
-                .map_err(|e| e.to_string())?;
+            let _ = TOTP::new_unchecked(to_algorithm(&algorithm), digits as usize, 1, period as u64, decoded, None, String::new());
             let (ct, nonce) = encrypt(&key, secret_clean.as_bytes());
             conn.execute(
                 "INSERT INTO totp_entries (name, issuer, encrypted_secret, nonce, algorithm, digits, period) \
@@ -605,10 +628,16 @@ fn import_vault(path: String, state: State<AppState>) -> Result<(usize, usize), 
             Ok(())
         })();
 
-        if ok.is_ok() { imported += 1; } else { failed += 1; }
+        match ok {
+            Ok(_) => imported += 1,
+            Err(e) => {
+                failed += 1;
+                append_log(&app, "WARN", &format!("import_vault: failed \"{}\" — {}", entry.name, e));
+            }
+        }
     }
 
-    Ok((imported, failed))
+    Ok((imported, skipped, failed))
 }
 
 #[tauri::command]
@@ -715,8 +744,7 @@ fn open_log_dir(app: tauri::AppHandle) -> Result<(), String> {
     app.opener().open_path(log_dir.to_string_lossy(), None::<String>).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
-fn write_log(app: tauri::AppHandle, level: String, message: String) {
+fn append_log(app: &tauri::AppHandle, level: &str, message: &str) {
     use std::io::Write;
     let Ok(log_dir) = app.path().app_log_dir() else { return };
     let _ = std::fs::create_dir_all(&log_dir);
@@ -726,6 +754,11 @@ fn write_log(app: tauri::AppHandle, level: String, message: String) {
     if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(log_file) {
         let _ = f.write_all(line.as_bytes());
     }
+}
+
+#[tauri::command]
+fn write_log(app: tauri::AppHandle, level: String, message: String) {
+    append_log(&app, &level, &message);
 }
 
 // ---- Entry point ----
