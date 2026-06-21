@@ -24,18 +24,12 @@ build time.
 
 ## Bumping the version
 
-Replace `OLD` and `NEW` with the actual version strings:
+Edit each file manually at the indicated line:
 
-```powershell
-# Windows (PowerShell) — run from the project root
-$old = "0.1.0"; $new = "0.2.0"
-(Get-Content package.json)                        -replace $old, $new | Set-Content package.json
-(Get-Content src-tauri\Cargo.toml)                -replace $old, $new | Set-Content src-tauri\Cargo.toml
-(Get-Content src-tauri\tauri.conf.json)           -replace $old, $new | Set-Content src-tauri\tauri.conf.json
-```
+| File | Line | Example |
+|------|------|---------|
+| `package.json` | 5 | `"version": "0.4.0"` |
+| `src-tauri/Cargo.toml` | 3 | `version = "0.4.0"` |
+| `src-tauri/tauri.conf.json` | 4 | `"version": "0.4.0"` |
 
-Then verify:
-
-```powershell
-Select-String -Path package.json, src-tauri\Cargo.toml, src-tauri\tauri.conf.json -Pattern '"?version"?\s*[:=]'
-```
+> **Note:** avoid using PowerShell `Set-Content` to replace the version — it writes UTF-8 with BOM in PS 5.1, which breaks the Tauri JSON parser at build time.
