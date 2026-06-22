@@ -863,7 +863,7 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 use tauri_plugin_autostart::MacosLauncher;
-                app.handle().plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))?;
+                app.handle().plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--silent"])))?;
             }
 
             // Global shortcut: Alt+Shift+A → toggle window
@@ -950,6 +950,14 @@ pub fn run() {
                         _ => {}
                     })
                     .build(app)?;
+            }
+
+            // Silent start: if launched by the OS autostart, hide window immediately
+            if std::env::args().any(|a| a == "--silent") {
+                if let Some(win) = app.get_webview_window("main") {
+                    arm_auto_lock(&app.state::<AppState>());
+                    let _ = win.hide();
+                }
             }
 
             // Close button → hide to tray + arm auto-lock timer
